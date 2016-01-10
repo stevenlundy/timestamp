@@ -8,28 +8,32 @@ var formatDate = function(date) {
   return months[date.getMonth()] + ' ' + date.getDate() + ', ' + date.getFullYear();
 };
 
-app.get('/*', function (req, res) {
-  // Remove opening / and decode URI characters
+var getTimeStamp = function(dateString) {
   var date;
-  var dateParam = decodeURI(req.url.slice(1));
-  if (isNaN(parseInt(dateParam, 10))) {
+  if (isNaN(parseInt(dateString, 10))) {
     // if a possible date string is sent in
-    date = new Date(dateParam);
+    date = new Date(dateString);
   } else {
     // if an integer is sent in
-    date = new Date(parseInt(dateParam, 10) * 1000);
+    date = new Date(parseInt(dateString, 10) * 1000);
   }
   if (date.toString() === 'Invalid Date') {
-    res.send({
+    return {
       unix: null,
       natural: null
-    });
+    };
   } else {
-    res.send({
+    return {
       unix: date.getTime()/1000,
       natural: formatDate(date)
-    });
+    };
   }
+};
+
+app.get('/*', function (req, res) {
+  // Remove opening / and decode URI characters
+  var dateParam = decodeURI(req.url.slice(1));
+  return getTimeStamp(dateParam);
 });
 
 app.listen(port, function () {
